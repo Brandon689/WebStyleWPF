@@ -1,18 +1,19 @@
-﻿using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.Web.WebView2.Core;
-using System;
+﻿using Microsoft.Web.WebView2.Core;
 using System.Windows;
+using WebStyleWPF.Bridge;
 
 namespace WebView2WpfApp
 {
     public partial class MainWindow : Window
     {
         private readonly HtmlGenerator _htmlGenerator;
+        private WebViewBridge _webViewBridge;
         public MainWindow()
         {
             InitializeComponent();
             InitializeAsync();
             _htmlGenerator = new HtmlGenerator();
+            _webViewBridge = new WebViewBridge();
         }
 
         async void InitializeAsync()
@@ -33,25 +34,15 @@ namespace WebView2WpfApp
         {
             if (e.TryGetWebMessageAsString() == "GetDataFromCSharp")
             {
-                string data = new WebViewBridge().GetDataFromCSharp();
+                string data = _webViewBridge.GetDataFromCSharp();
                 webView.CoreWebView2.PostWebMessageAsString(data);
             }
         }
 
         private void LoadHtmlContent()
         {
-            var imageUrls = new List<string>
-    {
-        "https://picsum.photos/id/1018/800/600",
-        "https://picsum.photos/id/1015/800/600",
-        "https://picsum.photos/id/1019/800/600",
-        "https://picsum.photos/id/1016/800/600",
-        "https://picsum.photos/id/1020/800/600",
-        "https://picsum.photos/id/1021/800/600"
-    };
-
-            string htmlContent = _htmlGenerator.GenerateHtml(imageUrls);
-            Console.WriteLine(htmlContent);
+            string htmlContent = _htmlGenerator.GenerateHtml();
+            //Console.WriteLine(htmlContent);
             webView.NavigateToString(htmlContent);
         }
 
@@ -59,15 +50,6 @@ namespace WebView2WpfApp
         private void RefreshButton_Click(object sender, RoutedEventArgs e)
         {
             LoadHtmlContent();
-        }
-    }
-
-    [System.Runtime.InteropServices.ComVisible(true)]
-    public class WebViewBridge
-    {
-        public string GetDataFromCSharp()
-        {
-            return "This data comes from C#! Current time: " + DateTime.Now.ToString();
         }
     }
 }

@@ -1,30 +1,27 @@
 ﻿using HtmlTags;
-using System;
-using System.Collections.Generic;
+using System.IO;
 using System.Text;
+using WebStyleWPF.Components;
 
 namespace WebView2WpfApp
 {
     public class HtmlGenerator
     {
-        public string GenerateHtml(List<string> imageUrls)
+        public string GenerateHtml()
         {
             var document = new HtmlDocument();
             document.Title = "Dynamic HTML Content with Gallery";
-
             document.Head.Append(GenerateMetaTags());
-
-
             document.Body.Append(GenerateHeader());
-            document.Body.Append(GenerateContent(imageUrls));
+            document.Body.Append(GenerateContent());
 
             var htmlString = document.ToString();
 
             // Insert the script tag after the body
             var scriptTag = GenerateScriptTag();
             var styles = $"<style>{GenerateStyles()}</style>";
-            htmlString = htmlString.Replace("</body>", $"{scriptTag}</body>");
-            htmlString = htmlString.Replace("</body>", $"{styles}</body>");
+            var scriptAndStyles = $"{styles}{scriptTag}</body>";
+            htmlString = htmlString.Replace("</body>", scriptAndStyles);
 
             return htmlString;
         }
@@ -38,60 +35,7 @@ namespace WebView2WpfApp
 
         private string GenerateStyles()
         {
-            return @"
-                body { 
-                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-                    margin: 0; 
-                    padding: 20px; 
-                    background-color: #f0f0f0;
-                    color: #333;
-                }
-                h1 { 
-                    color: #2c3e50; 
-                    text-align: center;
-                    margin-bottom: 30px;
-                }
-                .content { 
-                    background-color: #fff; 
-                    padding: 20px; 
-                    border-radius: 8px;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                    max-width: 800px;
-                    margin: 0 auto;
-                }
-                button {
-                    background-color: #3498db;
-                    color: white;
-                    border: none;
-                    padding: 10px 20px;
-                    border-radius: 5px;
-                    cursor: pointer;
-                    transition: background-color 0.3s;
-                }
-                button:hover {
-                    background-color: #2980b9;
-                }
-                #result {
-                    margin-top: 20px;
-                    font-weight: bold;
-                }
-                .gallery {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-                    gap: 15px;
-                    margin-top: 20px;
-                }
-                .gallery img {
-                    width: 100%;
-                    height: 200px;
-                    object-fit: cover;
-                    border-radius: 5px;
-                    transition: transform 0.3s;
-                }
-                .gallery img:hover {
-                    transform: scale(1.05);
-                }
-            ";
+            return File.ReadAllText("Styles/styles.css");
         }
 
         private HtmlTag GenerateHeader()
@@ -99,20 +43,25 @@ namespace WebView2WpfApp
             return new HtmlTag("h1").Text("Welcome to WebView2 Gallery");
         }
 
-        private HtmlTag GenerateContent(List<string> imageUrls)
+        private HtmlTag GenerateContent()
         {
             var content = new HtmlTag("div").AddClass("content");
             content.Append(new HtmlTag("p").Text("This content is dynamically generated from C#."));
             content.Append(new HtmlTag("p").Text($"Current time: {DateTime.Now}"));
             content.Append(new HtmlTag("button").Attr("onclick", "getDataFromCSharp()").Text("Get Data from C#"));
             content.Append(new HtmlTag("p").Id("result"));
-
-            var gallery = new HtmlTag("div").AddClass("gallery");
-            foreach (var url in imageUrls)
+            var imageUrls = new List<string>
             {
-                gallery.Append(new HtmlTag("img").Attr("src", url).Attr("alt", "Gallery Image"));
-            }
-            content.Append(gallery);
+                "https://picsum.photos/id/1018/800/600",
+                "https://picsum.photos/id/1015/800/600",
+                "https://picsum.photos/id/1019/800/600",
+                "https://picsum.photos/id/1016/800/600",
+                "https://picsum.photos/id/1020/800/600",
+                "https://picsum.photos/id/1021/800/600"
+            };
+            content.Append(Cpt.Gallery(imageUrls));
+            content.Append(Cpt.Button());
+            content.Append(Cpt.Image("https://picsum.photos/id/1038/800/600"));
 
             return content;
         }

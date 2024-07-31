@@ -13,4 +13,10 @@
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2592.51" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Styles\styles.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
